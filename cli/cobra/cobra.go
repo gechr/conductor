@@ -30,10 +30,11 @@ type Program struct {
 }
 
 type config struct {
-	sections   []clibcobra.SectionsOption
-	generator  []func(*complete.Generator)
-	exitCode   func(error) int
-	selfUpdate bool
+	sections        []clibcobra.SectionsOption
+	generator       []func(*complete.Generator)
+	exitCode        func(error) int
+	selfUpdate      bool
+	noStandardFlags bool
 }
 
 // Option configures [New].
@@ -63,6 +64,13 @@ func WithVersionCommand() Option {
 // WithUpdateCommand adds the standard Homebrew `update` subcommand.
 func WithUpdateCommand() Option {
 	return func(p *Program) { p.Root.AddCommand(UpdateCommand(p.Runtime)) }
+}
+
+// WithoutStandardFlags skips registering --verbose/--quiet/--color, for
+// tools whose own flags or output policy already cover those semantics (a
+// subcommand's local shorthand may also conflict with the persistent ones).
+func WithoutStandardFlags() Option {
+	return func(p *Program) { p.cfg.noStandardFlags = true }
 }
 
 // WithSelfUpdate adds the hidden --self-update flag for CLIs without
@@ -110,10 +118,12 @@ func New(app *conductor.Runtime, root *cobralib.Command, opts ...Option) *Progra
 		Completion: clibcobra.NewCompletion(root),
 		Flags:      &Flags{},
 	}
-	p.Flags.Register(root.PersistentFlags())
 
 	for _, opt := range opts {
 		opt(p)
+	}
+	if !p.cfg.noStandardFlags {
+		p.Flags.Register(root.PersistentFlags())
 	}
 	if len(p.cfg.sections) > 0 {
 		root.SetHelpFunc(clibcobra.HelpFunc(

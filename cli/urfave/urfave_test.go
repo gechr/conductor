@@ -70,6 +70,16 @@ func TestGeneratorIncludesSubcommands(t *testing.T) {
 	assert.NotEmpty(t, prog.Generator().Subs)
 }
 
+func TestWithoutStandardFlags(t *testing.T) {
+	root := &clilib.Command{}
+	newProgram(t, root, curfave.WithoutStandardFlags())
+	for _, flag := range root.Flags {
+		assert.NotContains(t, flag.Names(), "verbose")
+		assert.NotContains(t, flag.Names(), "quiet")
+		assert.NotContains(t, flag.Names(), "color")
+	}
+}
+
 func TestWithSelfUpdate(t *testing.T) {
 	root := &clilib.Command{Action: func(context.Context, *clilib.Command) error { return nil }}
 	var got error

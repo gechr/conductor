@@ -29,10 +29,11 @@ type Program struct {
 }
 
 type config struct {
-	sections   []cliburfave.SectionsOption
-	generator  []func(*complete.Generator)
-	exitCode   func(error) int
-	selfUpdate bool
+	sections        []cliburfave.SectionsOption
+	generator       []func(*complete.Generator)
+	exitCode        func(error) int
+	selfUpdate      bool
+	noStandardFlags bool
 }
 
 // Option configures [New].
@@ -62,6 +63,12 @@ func WithVersionCommand() Option {
 // WithUpdateCommand adds the standard Homebrew `update` subcommand.
 func WithUpdateCommand() Option {
 	return func(p *Program) { p.Root.Commands = append(p.Root.Commands, UpdateCommand(p.Runtime)) }
+}
+
+// WithoutStandardFlags skips registering --verbose/--quiet/--color, for
+// tools whose own flags or output policy already cover those semantics.
+func WithoutStandardFlags() Option {
+	return func(p *Program) { p.cfg.noStandardFlags = true }
 }
 
 // WithSelfUpdate adds the hidden --self-update flag for CLIs without
@@ -108,11 +115,13 @@ func New(app *conductor.Runtime, root *clilib.Command, opts ...Option) *Program 
 		Root:    root,
 		Flags:   &Flags{},
 	}
-	root.Flags = append(p.Flags.flags(), root.Flags...)
 	p.Completion = cliburfave.NewCompletion(root)
 
 	for _, opt := range opts {
 		opt(p)
+	}
+	if !p.cfg.noStandardFlags {
+		root.Flags = append(p.Flags.flags(), root.Flags...)
 	}
 
 	clilib.HelpPrinter = cliburfave.HelpPrinter(

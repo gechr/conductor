@@ -94,6 +94,15 @@ func TestWithSelfUpdate(t *testing.T) {
 	require.EqualError(t, got, "--self-update cannot be combined with other arguments")
 }
 
+func TestWithoutStandardFlags(t *testing.T) {
+	root := &cobralib.Command{}
+	prog := newProgram(t, root, ccobra.WithoutStandardFlags())
+	assert.Nil(t, root.PersistentFlags().Lookup("verbose"))
+	assert.Nil(t, root.PersistentFlags().Lookup("quiet"))
+	assert.Nil(t, root.PersistentFlags().Lookup("color"))
+	assert.NotNil(t, prog.Flags)
+}
+
 func TestRegisterSkipsExistingFlags(t *testing.T) {
 	root := &cobralib.Command{}
 	var ownQuiet bool
