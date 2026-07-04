@@ -88,4 +88,5 @@ A thin layer over the same public APIs you would call yourself:
 - `App.SkipLogDefaults` opts out of the house style; the standalone `conductor.LogDefaults()` opts into it without the rest.
 - `Runtime.Theme`/`Runtime.Renderer` and every `Program` field are exported and replaceable before `Run`.
 - Adapter options (`WithKongOptions`, `WithSections`, `WithGenerator`, `WithExitCode`, ...) append after conductor's defaults, so they can override anything.
+- `conductor.SignalContext()` - opt-in SIGINT/SIGTERM context for commands that should abort cleanly on Ctrl-C.
 - Tools with bespoke needs skip the relevant piece (don't embed the flags, provide your own `update` command) and keep the rest.
