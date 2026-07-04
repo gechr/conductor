@@ -41,6 +41,18 @@ func TestEnvPrefix(t *testing.T) {
 	}
 }
 
+func TestDisplayNameDefaultsToName(t *testing.T) {
+	assert.Equal(t, "demo", New(App{Name: "demo"}).App.DisplayName)
+	assert.Equal(t, "Demo", New(App{Name: "demo", DisplayName: "Demo"}).App.DisplayName)
+}
+
+func TestSignalContext(t *testing.T) {
+	ctx, stop := SignalContext()
+	require.NotNil(t, ctx)
+	stop()
+	<-ctx.Done()
+}
+
 func TestConfigureLogRunsAfterDefaults(t *testing.T) {
 	ran := false
 	New(App{Name: "demo", ConfigureLog: func() { ran = true }})

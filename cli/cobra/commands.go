@@ -29,7 +29,7 @@ func UpdateCommand(app *conductor.Runtime) *cobralib.Command {
 	var opts update.Options
 	cmd := &cobralib.Command{
 		Use:   "update",
-		Short: "Update " + app.App.Name + " to the latest version",
+		Short: "Update " + app.App.DisplayName + " to the latest version",
 		Args:  cobralib.NoArgs,
 		RunE: func(cmd *cobralib.Command, _ []string) error {
 			return update.Run(cmd.Context(), app, opts)

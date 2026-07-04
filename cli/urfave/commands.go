@@ -36,7 +36,7 @@ func UpdateCommand(app *conductor.Runtime) *clilib.Command {
 	var opts update.Options
 	return &clilib.Command{
 		Name:  "update",
-		Usage: "Update " + app.App.Name + " to the latest version",
+		Usage: "Update " + app.App.DisplayName + " to the latest version",
 		Flags: []clilib.Flag{
 			&clilib.BoolFlag{
 				Name:        "check",

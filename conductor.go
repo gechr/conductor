@@ -26,6 +26,10 @@ const EnvPrefixNone = "-"
 type App struct {
 	// Name is the binary name, e.g. "demo". Required.
 	Name string
+	// DisplayName is the stylised human-facing name, e.g. "Demo", used in
+	// human-facing text such as the standard update command's description.
+	// Defaults to Name.
+	DisplayName string
 	// Description is the one-line description used in help output.
 	Description string
 
@@ -92,6 +96,9 @@ type Runtime struct {
 func New(app App) *Runtime {
 	if xstrings.IsBlank(app.Name) {
 		panic("conductor: App.Name is required")
+	}
+	if app.DisplayName == "" {
+		app.DisplayName = app.Name
 	}
 
 	// clog re-reads the environment when the prefix changes, so this must
