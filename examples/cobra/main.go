@@ -1,4 +1,4 @@
-// Command demo shows the conductor cobra integration: one App struct plus one
+// Command demo shows the Conductor cobra integration: one App struct plus one
 // Program call replaces the usual hand-rolled logger, help, completion,
 // version and update-check bootstrap.
 package main

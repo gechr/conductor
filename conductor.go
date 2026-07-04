@@ -21,7 +21,7 @@ import (
 // their own defaults (CLOG and CLIB).
 const EnvPrefixNone = "-"
 
-// App declares everything conductor needs to initialize a CLI tool. Name is
+// App declares everything Conductor needs to initialize a CLI tool. Name is
 // required; every other field has a sensible zero value.
 type App struct {
 	// Name is the binary name, e.g. "demo". Required.
@@ -48,7 +48,7 @@ type App struct {
 	// [updater.Tool] works, e.g. brew.New(...), goinstall.New(...) or
 	// github.New(...).
 	Updater updater.Tool
-	// NotifyOptions are appended after conductor's own notify options.
+	// NotifyOptions are appended after Conductor's own notify options.
 	NotifyOptions []notify.Option
 	// NotifySkip lists extra command verbs that suppress the update check, in
 	// addition to the built-in "update", "version", "help" and completion

@@ -1,4 +1,4 @@
-// Package urfave adapts conductor to urfave/cli v3 CLIs: one call wires
+// Package urfave adapts Conductor to urfave/cli v3 CLIs: one call wires
 // themed help, shell completions, standard flags, version output and update
 // notifications onto an existing root command, mirroring the conventions of
 // clib's cli/urfave package.
@@ -62,7 +62,7 @@ func WithUpdateCommand() Option {
 	return func(p *Program) { p.Root.Commands = append(p.Root.Commands, UpdateCommand(p.Runtime)) }
 }
 
-// New wires conductor onto root: identity defaults from the App, themed help
+// New wires Conductor onto root: identity defaults from the App, themed help
 // (via the package-global [clilib.HelpPrinter]), prepended standard flags, a
 // -V/--version flag (replacing urfave's -v alias, which the verbose flag
 // claims), completion flags, and a chained Before hook that applies the

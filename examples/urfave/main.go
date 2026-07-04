@@ -1,4 +1,4 @@
-// Command demo shows the conductor urfave/cli integration: one App struct
+// Command demo shows the Conductor urfave/cli integration: one App struct
 // plus one Program call replaces the usual hand-rolled logger, help,
 // completion, version and update-check bootstrap.
 package main

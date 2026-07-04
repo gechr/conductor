@@ -1,4 +1,4 @@
-// Package cobra adapts conductor to cobra-based CLIs: one call wires themed
+// Package cobra adapts Conductor to cobra-based CLIs: one call wires themed
 // help, shell completions, standard flags, version output and update
 // notifications onto an existing root command, mirroring the conventions of
 // clib's cli/cobra package.
@@ -63,7 +63,7 @@ func WithUpdateCommand() Option {
 	return func(p *Program) { p.Root.AddCommand(UpdateCommand(p.Runtime)) }
 }
 
-// New wires conductor onto root: identity defaults from the App, themed help,
+// New wires Conductor onto root: identity defaults from the App, themed help,
 // persistent standard flags, a -V/--version flag, completion flags, and a
 // chained PersistentPreRunE that applies the standard flags and starts the
 // update notification once the command is resolved. Add subcommands to root
@@ -165,7 +165,7 @@ func (p *Program) completion() (bool, int) {
 }
 
 // commandVerb returns the first subcommand segment of cmd's path, the verb
-// conductor's notify skip logic keys on.
+// Conductor's notify skip logic keys on.
 func commandVerb(root, cmd *cobralib.Command) string {
 	path := strings.TrimPrefix(cmd.CommandPath(), root.Name())
 	return strings.TrimSpace(path)

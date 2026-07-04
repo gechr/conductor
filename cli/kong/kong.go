@@ -1,4 +1,4 @@
-// Package kong adapts conductor to kong-based CLIs: one call builds the
+// Package kong adapts Conductor to kong-based CLIs: one call builds the
 // parser with themed help, shell completions, version wiring and update
 // notifications, mirroring the conventions of clib's cli/kong package.
 package kong
@@ -36,7 +36,7 @@ type config struct {
 // Option configures [New].
 type Option func(*config)
 
-// WithKongOptions appends extra kong options after conductor's own, so they
+// WithKongOptions appends extra kong options after Conductor's own, so they
 // can override any default.
 func WithKongOptions(opts ...konglib.Option) Option {
 	return func(c *config) { c.kongOptions = append(c.kongOptions, opts...) }
