@@ -31,6 +31,7 @@ type config struct {
 	kongOptions  []konglib.Option
 	nodeSections []clibkong.NodeSectionsOption
 	generator    []func(*complete.Generator)
+	handler      complete.Handler
 	exitCode     func(error) int
 	noDispatch   bool
 }
@@ -58,6 +59,12 @@ func WithBind(values ...any) Option {
 // built, e.g. to add dynamic argument specs.
 func WithGenerator(fn func(*complete.Generator)) Option {
 	return func(c *config) { c.generator = append(c.generator, fn) }
+}
+
+// WithCompletionHandler installs the callback invoked for dynamic
+// --@complete requests; it receives the completion type and resolved shell.
+func WithCompletionHandler(handler complete.Handler) Option {
+	return func(c *config) { c.handler = handler }
 }
 
 // WithExitCode maps command errors to exit codes; see [conductor.ExitCode].
@@ -182,7 +189,7 @@ func (p *Program) completion() (bool, int) {
 	if !ok {
 		return false, 0
 	}
-	if _, err := cf.Handle(p.Gen, nil, clibkong.WithArgs(args)); err != nil {
+	if _, err := cf.Handle(p.Gen, p.cfg.handler, clibkong.WithArgs(args)); err != nil {
 		clog.Error().Err(err).Msg("Completion failed")
 		return true, 1
 	}
