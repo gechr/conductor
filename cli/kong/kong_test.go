@@ -82,6 +82,6 @@ func TestUpdateCmdRequiresSupportedUpdater(t *testing.T) {
 	require.EqualError(
 		t,
 		err,
-		"update command supports brew, goinstall and github updaters, got <nil>",
+		"update command requires a self-updating updater, got <nil>",
 	)
 }

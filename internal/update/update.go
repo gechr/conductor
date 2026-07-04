@@ -1,15 +1,14 @@
 // Package update holds the self-update logic shared by the framework
-// adapters' update commands. It dispatches on the install method configured
-// in App.Updater: Homebrew, `go install`, or GitHub release download.
+// adapters' update commands, driven through the [updater.Updater] interface
+// so any install method (Homebrew, `go install`, GitHub release) works.
 package update
 
 import (
 	"context"
 	"fmt"
 
+	"github.com/gechr/clive/updater"
 	"github.com/gechr/clive/updater/brew"
-	"github.com/gechr/clive/updater/github"
-	"github.com/gechr/clive/updater/goinstall"
 	"github.com/gechr/conductor"
 )
 
@@ -23,34 +22,24 @@ type Options struct {
 	NoUninstall bool
 }
 
-// Run checks for or installs an update using the install method of the
-// runtime's App.Updater: [brew.Config], [goinstall.Config] or
-// [github.Config]. Tools distributed another way provide their own update
-// command instead.
+// Run checks for or installs an update via App.Updater, which must implement
+// [updater.Updater] (every clive updater config does). Tools distributed
+// another way provide their own update command instead.
 func Run(ctx context.Context, app *conductor.Runtime, opts Options) error {
-	switch cfg := app.App.Updater.(type) {
-	case brew.Config:
-		if opts.NoUninstall {
-			brew.WithOnConflict(brew.ConflictIgnore)(&cfg)
-		}
-		if opts.Check {
-			return brew.Check(ctx, cfg)
-		}
-		return brew.Update(ctx, cfg, brew.ChannelFor(opts.Dev, opts.Stable))
-	case goinstall.Config:
-		if opts.Check {
-			return goinstall.Check(ctx, cfg)
-		}
-		return goinstall.Update(ctx, cfg, goinstall.ChannelFor(opts.Dev))
-	case github.Config:
-		if opts.Check {
-			return github.Check(ctx, cfg)
-		}
-		return github.Update(ctx, cfg, github.ChannelFor(opts.Dev))
-	default:
+	u, ok := app.App.Updater.(updater.Updater)
+	if !ok {
 		return fmt.Errorf(
-			"update command supports brew, goinstall and github updaters, got %T",
+			"update command requires a self-updating updater, got %T",
 			app.App.Updater,
 		)
 	}
+	// Leaving a conflicting install in place is inherently Homebrew-specific.
+	if cfg, ok := u.(brew.Config); ok && opts.NoUninstall {
+		brew.WithOnConflict(brew.ConflictIgnore)(&cfg)
+		u = cfg
+	}
+	if opts.Check {
+		return u.Check(ctx)
+	}
+	return u.Update(ctx, opts.Dev, opts.Stable)
 }
