@@ -94,6 +94,17 @@ func TestWithSelfUpdate(t *testing.T) {
 	require.EqualError(t, got, "--self-update cannot be combined with other arguments")
 }
 
+func TestRegisterSkipsExistingFlags(t *testing.T) {
+	root := &cobralib.Command{}
+	var ownQuiet bool
+	root.PersistentFlags().BoolVarP(&ownQuiet, "quiet", "q", false, "Suppress response output")
+	prog := newProgram(t, root)
+	assert.Equal(t, "Suppress response output", root.PersistentFlags().Lookup("quiet").Usage)
+	assert.NotNil(t, root.PersistentFlags().Lookup("verbose"))
+	assert.NotNil(t, root.PersistentFlags().Lookup("color"))
+	assert.NotNil(t, prog.Flags)
+}
+
 func TestUpdateCommandRequiresSupportedUpdater(t *testing.T) {
 	app := conductor.New(conductor.App{Name: "demo"})
 	cmd := ccobra.UpdateCommand(app)
