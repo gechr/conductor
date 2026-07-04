@@ -4,9 +4,12 @@ import "github.com/gechr/clive"
 
 // Version returns the running binary's version via [clive.Current]:
 // ldflag-injected, module build info, or VCS revision - whichever resolves
-// first.
+// first - with a friendly placeholder when nothing resolves.
 func (r *Runtime) Version() string {
-	return clive.Current()
+	if v := clive.Current(); v != "" {
+		return v
+	}
+	return "Version information is not available"
 }
 
 // PrintVersion writes the version to stdout: the bare string, or a labelled
