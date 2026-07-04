@@ -79,6 +79,21 @@ func TestGeneratorIncludesSubcommands(t *testing.T) {
 	assert.NotEmpty(t, gen.Subs)
 }
 
+func TestWithSelfUpdate(t *testing.T) {
+	root := &cobralib.Command{RunE: func(*cobralib.Command, []string) error { return nil }}
+	var got error
+	prog := newProgram(t, root, ccobra.WithSelfUpdate(), ccobra.WithExitCode(func(err error) int {
+		got = err
+		return 42
+	}))
+	require.Equal(t, 42, prog.Run(context.Background(), []string{"--self-update"}))
+	require.EqualError(t, got, "update command requires a self-updating updater, got <nil>")
+
+	// The flag is mutually exclusive with every other argument.
+	require.Equal(t, 42, prog.Run(context.Background(), []string{"--self-update", "--verbose"}))
+	require.EqualError(t, got, "--self-update cannot be combined with other arguments")
+}
+
 func TestUpdateCommandRequiresSupportedUpdater(t *testing.T) {
 	app := conductor.New(conductor.App{Name: "demo"})
 	cmd := ccobra.UpdateCommand(app)

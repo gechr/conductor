@@ -13,6 +13,7 @@ import (
 	"github.com/gechr/clib/help"
 	"github.com/gechr/clog"
 	"github.com/gechr/conductor"
+	"github.com/gechr/conductor/internal/update"
 	cobralib "github.com/spf13/cobra"
 )
 
@@ -29,9 +30,10 @@ type Program struct {
 }
 
 type config struct {
-	sections  []clibcobra.SectionsOption
-	generator []func(*complete.Generator)
-	exitCode  func(error) int
+	sections   []clibcobra.SectionsOption
+	generator  []func(*complete.Generator)
+	exitCode   func(error) int
+	selfUpdate bool
 }
 
 // Option configures [New].
@@ -61,6 +63,19 @@ func WithVersionCommand() Option {
 // WithUpdateCommand adds the standard Homebrew `update` subcommand.
 func WithUpdateCommand() Option {
 	return func(p *Program) { p.Root.AddCommand(UpdateCommand(p.Runtime)) }
+}
+
+// WithSelfUpdate adds the hidden --self-update flag for CLIs without
+// subcommands, which have no room for an update command. [Program.Run]
+// intercepts the flag before cobra executes and performs the self-update via
+// App.Updater; it is mutually exclusive with every other argument.
+func WithSelfUpdate() Option {
+	return func(p *Program) {
+		p.cfg.selfUpdate = true
+		fs := p.Root.Flags()
+		fs.Bool("self-update", false, "Update to the latest version")
+		_ = fs.MarkHidden("self-update")
+	}
 }
 
 // New wires Conductor onto root: identity defaults from the App, themed help,
@@ -127,6 +142,17 @@ func New(app *conductor.Runtime, root *cobralib.Command, opts ...Option) *Progra
 func (p *Program) Run(ctx context.Context, args []string) int {
 	if handled, code := p.completion(); handled {
 		return code
+	}
+
+	// Self-update runs before cobra executes, like completion; the flag is
+	// mutually exclusive with every other argument.
+	if p.cfg.selfUpdate {
+		if requested, err := update.Requested(args); requested {
+			if err == nil {
+				err = update.Run(ctx, p.Runtime, update.Options{})
+			}
+			return conductor.ExitCode(err, p.cfg.exitCode)
+		}
 	}
 
 	p.Root.SetArgs(args)

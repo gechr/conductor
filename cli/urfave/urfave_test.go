@@ -70,6 +70,25 @@ func TestGeneratorIncludesSubcommands(t *testing.T) {
 	assert.NotEmpty(t, prog.Generator().Subs)
 }
 
+func TestWithSelfUpdate(t *testing.T) {
+	root := &clilib.Command{Action: func(context.Context, *clilib.Command) error { return nil }}
+	var got error
+	prog := newProgram(t, root, curfave.WithSelfUpdate(), curfave.WithExitCode(func(err error) int {
+		got = err
+		return 42
+	}))
+	require.Equal(t, 42, prog.Run(context.Background(), []string{"demo", "--self-update"}))
+	require.EqualError(t, got, "update command requires a self-updating updater, got <nil>")
+
+	// The flag is mutually exclusive with every other argument.
+	require.Equal(
+		t,
+		42,
+		prog.Run(context.Background(), []string{"demo", "--self-update", "--verbose"}),
+	)
+	require.EqualError(t, got, "--self-update cannot be combined with other arguments")
+}
+
 func TestUpdateCommandRequiresSupportedUpdater(t *testing.T) {
 	app := conductor.New(conductor.App{Name: "demo"})
 	root := &clilib.Command{Commands: []*clilib.Command{curfave.UpdateCommand(app)}}

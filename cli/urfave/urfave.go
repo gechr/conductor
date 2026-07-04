@@ -12,6 +12,7 @@ import (
 	"github.com/gechr/clib/help"
 	"github.com/gechr/clog"
 	"github.com/gechr/conductor"
+	"github.com/gechr/conductor/internal/update"
 	clilib "github.com/urfave/cli/v3"
 )
 
@@ -28,9 +29,10 @@ type Program struct {
 }
 
 type config struct {
-	sections  []cliburfave.SectionsOption
-	generator []func(*complete.Generator)
-	exitCode  func(error) int
+	sections   []cliburfave.SectionsOption
+	generator  []func(*complete.Generator)
+	exitCode   func(error) int
+	selfUpdate bool
 }
 
 // Option configures [New].
@@ -60,6 +62,21 @@ func WithVersionCommand() Option {
 // WithUpdateCommand adds the standard Homebrew `update` subcommand.
 func WithUpdateCommand() Option {
 	return func(p *Program) { p.Root.Commands = append(p.Root.Commands, UpdateCommand(p.Runtime)) }
+}
+
+// WithSelfUpdate adds the hidden --self-update flag for CLIs without
+// subcommands, which have no room for an update command. [Program.Run]
+// intercepts the flag before urfave parses and performs the self-update via
+// App.Updater; it is mutually exclusive with every other argument.
+func WithSelfUpdate() Option {
+	return func(p *Program) {
+		p.cfg.selfUpdate = true
+		p.Root.Flags = append(p.Root.Flags, &clilib.BoolFlag{
+			Name:   "self-update",
+			Usage:  "Update to the latest version",
+			Hidden: true,
+		})
+	}
 }
 
 // New wires Conductor onto root: identity defaults from the App, themed help
@@ -124,6 +141,18 @@ func New(app *conductor.Runtime, root *clilib.Command, opts ...Option) *Program 
 func (p *Program) Run(ctx context.Context, args []string) int {
 	if handled, code := p.completion(); handled {
 		return code
+	}
+
+	// Self-update runs before urfave parses, like completion; the flag is
+	// mutually exclusive with every other argument. args includes the program
+	// name, so the scan skips it.
+	if p.cfg.selfUpdate && len(args) > 0 {
+		if requested, err := update.Requested(args[1:]); requested {
+			if err == nil {
+				err = update.Run(ctx, p.Runtime, update.Options{})
+			}
+			return conductor.ExitCode(err, p.cfg.exitCode)
+		}
 	}
 
 	err := p.Root.Run(ctx, args)
