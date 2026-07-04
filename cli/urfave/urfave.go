@@ -67,16 +67,16 @@ func WithUpdateCommand() Option {
 // -V/--version flag (replacing urfave's -v alias, which the verbose flag
 // claims), completion flags, and a chained Before hook that applies the
 // standard flags and starts the update notification.
-func New(rt *conductor.Runtime, root *clilib.Command, opts ...Option) *Program {
+func New(app *conductor.Runtime, root *clilib.Command, opts ...Option) *Program {
 	if root.Name == "" {
-		root.Name = rt.App.Name
+		root.Name = app.App.Name
 	}
 	if root.Usage == "" {
-		root.Usage = rt.App.Description
+		root.Usage = app.App.Description
 	}
-	root.Version = rt.Version()
+	root.Version = app.Version()
 	// Print the bare version, matching the kong and cobra adapters.
-	clilib.VersionPrinter = func(*clilib.Command) { rt.PrintVersion(false) }
+	clilib.VersionPrinter = func(*clilib.Command) { app.PrintVersion(false) }
 	// urfave's default version flag aliases -v, which --verbose claims.
 	clilib.VersionFlag = &clilib.BoolFlag{
 		Name:        "version",
@@ -87,7 +87,7 @@ func New(rt *conductor.Runtime, root *clilib.Command, opts ...Option) *Program {
 	}
 
 	p := &Program{
-		Runtime: rt,
+		Runtime: app,
 		Root:    root,
 		Flags:   &Flags{},
 	}
@@ -99,15 +99,15 @@ func New(rt *conductor.Runtime, root *clilib.Command, opts ...Option) *Program {
 	}
 
 	clilib.HelpPrinter = cliburfave.HelpPrinter(
-		rt.Renderer,
+		app.Renderer,
 		cliburfave.SectionsWithOptions(p.cfg.sections...),
-		help.WithHelpFlags(rt.App.HelpShortDesc(), rt.App.HelpLongDesc()),
+		help.WithHelpFlags(app.App.HelpShortDesc(), app.App.HelpLongDesc()),
 	)
 
 	prev := root.Before
 	root.Before = func(ctx context.Context, cmd *clilib.Command) (context.Context, error) {
-		rt.ApplyFlags(p.Flags.ConductorFlags())
-		p.flush = rt.Notify(cmd.Args().First())
+		app.ApplyFlags(p.Flags.ConductorFlags())
+		p.flush = app.Notify(cmd.Args().First())
 		if prev != nil {
 			return prev(ctx, cmd)
 		}

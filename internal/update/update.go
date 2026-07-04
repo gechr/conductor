@@ -27,8 +27,8 @@ type Options struct {
 // runtime's App.Updater: [brew.Config], [goinstall.Config] or
 // [github.Config]. Tools distributed another way provide their own update
 // command instead.
-func Run(ctx context.Context, rt *conductor.Runtime, opts Options) error {
-	switch cfg := rt.App.Updater.(type) {
+func Run(ctx context.Context, app *conductor.Runtime, opts Options) error {
+	switch cfg := app.App.Updater.(type) {
 	case brew.Config:
 		if opts.NoUninstall {
 			brew.WithOnConflict(brew.ConflictIgnore)(&cfg)
@@ -50,7 +50,7 @@ func Run(ctx context.Context, rt *conductor.Runtime, opts Options) error {
 	default:
 		return fmt.Errorf(
 			"update command supports brew, goinstall and github updaters, got %T",
-			rt.App.Updater,
+			app.App.Updater,
 		)
 	}
 }

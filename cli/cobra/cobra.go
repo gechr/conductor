@@ -68,29 +68,29 @@ func WithUpdateCommand() Option {
 // chained PersistentPreRunE that applies the standard flags and starts the
 // update notification once the command is resolved. Add subcommands to root
 // before or after New; the completion generator is built at Run time.
-func New(rt *conductor.Runtime, root *cobralib.Command, opts ...Option) *Program {
+func New(app *conductor.Runtime, root *cobralib.Command, opts ...Option) *Program {
 	if root.Use == "" {
-		root.Use = rt.App.Name
+		root.Use = app.App.Name
 	}
 	if root.Short == "" {
-		root.Short = rt.App.Description
+		root.Short = app.App.Description
 	}
 	root.SilenceUsage = true
 	root.SilenceErrors = true
-	root.Version = rt.Version()
+	root.Version = app.Version()
 	root.SetVersionTemplate("{{.Version}}\n")
 	// Pre-register the version flag so cobra's lazy init keeps our -V
 	// shorthand and help text.
 	root.Flags().BoolP("version", "V", false, "Print version information")
 
 	root.SetHelpFunc(clibcobra.HelpFunc(
-		rt.Renderer,
+		app.Renderer,
 		clibcobra.SectionsWithOptions(),
-		help.WithHelpFlags(rt.App.HelpShortDesc(), rt.App.HelpLongDesc()),
+		help.WithHelpFlags(app.App.HelpShortDesc(), app.App.HelpLongDesc()),
 	))
 
 	p := &Program{
-		Runtime:    rt,
+		Runtime:    app,
 		Root:       root,
 		Completion: clibcobra.NewCompletion(root),
 		Flags:      &Flags{},
@@ -102,16 +102,16 @@ func New(rt *conductor.Runtime, root *cobralib.Command, opts ...Option) *Program
 	}
 	if len(p.cfg.sections) > 0 {
 		root.SetHelpFunc(clibcobra.HelpFunc(
-			rt.Renderer,
+			app.Renderer,
 			clibcobra.SectionsWithOptions(p.cfg.sections...),
-			help.WithHelpFlags(rt.App.HelpShortDesc(), rt.App.HelpLongDesc()),
+			help.WithHelpFlags(app.App.HelpShortDesc(), app.App.HelpLongDesc()),
 		))
 	}
 
 	prev := root.PersistentPreRunE
 	root.PersistentPreRunE = func(cmd *cobralib.Command, args []string) error {
-		rt.ApplyFlags(p.Flags.ConductorFlags())
-		p.flush = rt.Notify(commandVerb(root, cmd))
+		app.ApplyFlags(p.Flags.ConductorFlags())
+		p.flush = app.Notify(commandVerb(root, cmd))
 		if prev != nil {
 			return prev(cmd, args)
 		}

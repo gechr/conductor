@@ -7,14 +7,14 @@ import (
 )
 
 // VersionCommand returns the standard `version` subcommand.
-func VersionCommand(rt *conductor.Runtime) *cobralib.Command {
+func VersionCommand(app *conductor.Runtime) *cobralib.Command {
 	var detailed bool
 	cmd := &cobralib.Command{
 		Use:   "version",
 		Short: "Print version information",
 		Args:  cobralib.NoArgs,
 		RunE: func(*cobralib.Command, []string) error {
-			rt.PrintVersion(detailed)
+			app.PrintVersion(detailed)
 			return nil
 		},
 	}
@@ -25,14 +25,14 @@ func VersionCommand(rt *conductor.Runtime) *cobralib.Command {
 // UpdateCommand returns the standard self-update subcommand. It dispatches
 // on App.Updater's install method (brew, goinstall or github); tools
 // distributed another way provide their own update command instead.
-func UpdateCommand(rt *conductor.Runtime) *cobralib.Command {
+func UpdateCommand(app *conductor.Runtime) *cobralib.Command {
 	var opts update.Options
 	cmd := &cobralib.Command{
 		Use:   "update",
-		Short: "Update " + rt.App.Name + " to the latest version",
+		Short: "Update " + app.App.Name + " to the latest version",
 		Args:  cobralib.NoArgs,
 		RunE: func(cmd *cobralib.Command, _ []string) error {
-			return update.Run(cmd.Context(), rt, opts)
+			return update.Run(cmd.Context(), app, opts)
 		},
 	}
 	fs := cmd.Flags()

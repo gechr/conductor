@@ -9,7 +9,7 @@ import (
 )
 
 // VersionCommand returns the standard `version` subcommand.
-func VersionCommand(rt *conductor.Runtime) *clilib.Command {
+func VersionCommand(app *conductor.Runtime) *clilib.Command {
 	var detailed bool
 	return &clilib.Command{
 		Name:  "version",
@@ -23,7 +23,7 @@ func VersionCommand(rt *conductor.Runtime) *clilib.Command {
 			},
 		},
 		Action: func(context.Context, *clilib.Command) error {
-			rt.PrintVersion(detailed)
+			app.PrintVersion(detailed)
 			return nil
 		},
 	}
@@ -32,11 +32,11 @@ func VersionCommand(rt *conductor.Runtime) *clilib.Command {
 // UpdateCommand returns the standard self-update subcommand. It dispatches
 // on App.Updater's install method (brew, goinstall or github); tools
 // distributed another way provide their own update command instead.
-func UpdateCommand(rt *conductor.Runtime) *clilib.Command {
+func UpdateCommand(app *conductor.Runtime) *clilib.Command {
 	var opts update.Options
 	return &clilib.Command{
 		Name:  "update",
-		Usage: "Update " + rt.App.Name + " to the latest version",
+		Usage: "Update " + app.App.Name + " to the latest version",
 		Flags: []clilib.Flag{
 			&clilib.BoolFlag{
 				Name:        "check",
@@ -64,7 +64,7 @@ func UpdateCommand(rt *conductor.Runtime) *clilib.Command {
 			}},
 		},
 		Action: func(ctx context.Context, _ *clilib.Command) error {
-			return update.Run(ctx, rt, opts)
+			return update.Run(ctx, app, opts)
 		},
 	}
 }

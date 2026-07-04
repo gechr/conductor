@@ -71,7 +71,7 @@ func WithNoDefaultCommand() Option {
 
 // New builds the parser, completion generator and help wiring for cli, a
 // pointer to a kong grammar struct (usually embedding [Flags]).
-func New(rt *conductor.Runtime, cli any, opts ...Option) (*Program, error) {
+func New(app *conductor.Runtime, cli any, opts ...Option) (*Program, error) {
 	var cfg config
 	for _, opt := range opts {
 		opt(&cfg)
@@ -81,26 +81,26 @@ func New(rt *conductor.Runtime, cli any, opts ...Option) (*Program, error) {
 	if err != nil {
 		return nil, err
 	}
-	gen := complete.NewGenerator(rt.App.Name).FromFlags(flags)
+	gen := complete.NewGenerator(app.App.Name).FromFlags(flags)
 	gen.Specs = append(gen.Specs,
-		complete.Spec{ShortFlag: "h", Terse: rt.App.HelpShortDesc()},
-		complete.Spec{LongFlag: "help", Terse: rt.App.HelpLongDesc()},
+		complete.Spec{ShortFlag: "h", Terse: app.App.HelpShortDesc()},
+		complete.Spec{LongFlag: "help", Terse: app.App.HelpLongDesc()},
 	)
 	for _, fn := range cfg.generator {
 		fn(gen)
 	}
 
 	kongOpts := []konglib.Option{
-		konglib.Name(rt.App.Name),
-		konglib.Description(rt.App.Description),
+		konglib.Name(app.App.Name),
+		konglib.Description(app.App.Description),
 		konglib.UsageOnError(),
-		konglib.Vars{"version": rt.Version()},
+		konglib.Vars{"version": app.Version()},
 		konglib.Help(clibkong.HelpPrinterFunc(
-			rt.Renderer,
+			app.Renderer,
 			clibkong.NodeSectionsFunc(cfg.nodeSections...),
-			help.WithHelpFlags(rt.App.HelpShortDesc(), rt.App.HelpLongDesc()),
+			help.WithHelpFlags(app.App.HelpShortDesc(), app.App.HelpLongDesc()),
 		)),
-		konglib.Bind(rt),
+		konglib.Bind(app),
 		konglib.Bind(gen),
 	}
 	kongOpts = append(kongOpts, cfg.kongOptions...)
@@ -113,7 +113,7 @@ func New(rt *conductor.Runtime, cli any, opts ...Option) (*Program, error) {
 	// list subcommands and their flags.
 	gen.Subs = clibkong.Subcommands(parser)
 
-	return &Program{Runtime: rt, Parser: parser, Gen: gen, cli: cli, cfg: cfg}, nil
+	return &Program{Runtime: app, Parser: parser, Gen: gen, cli: cli, cfg: cfg}, nil
 }
 
 // Run is the one-call happy path: completion preflight, parse, standard flag

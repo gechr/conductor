@@ -15,8 +15,8 @@ type VersionCmd struct {
 }
 
 // Run prints the version via the bound [conductor.Runtime].
-func (c *VersionCmd) Run(rt *conductor.Runtime) error {
-	rt.PrintVersion(c.Detailed)
+func (c *VersionCmd) Run(app *conductor.Runtime) error {
+	app.PrintVersion(c.Detailed)
 	return nil
 }
 
@@ -34,8 +34,8 @@ type UpdateCmd struct {
 }
 
 // Run checks for or installs the update.
-func (c *UpdateCmd) Run(rt *conductor.Runtime) error {
-	return update.Run(context.Background(), rt, update.Options{
+func (c *UpdateCmd) Run(app *conductor.Runtime) error {
+	return update.Run(context.Background(), app, update.Options{
 		Check:       c.Check,
 		Stable:      c.Stable,
 		Dev:         c.Dev,

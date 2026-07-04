@@ -15,8 +15,8 @@ import (
 
 func newProgram(t *testing.T, root *clilib.Command, opts ...curfave.Option) *curfave.Program {
 	t.Helper()
-	rt := conductor.New(conductor.App{Name: "demo", Description: "Test app."})
-	return curfave.New(rt, root, opts...)
+	app := conductor.New(conductor.App{Name: "demo", Description: "Test app."})
+	return curfave.New(app, root, opts...)
 }
 
 func greetCommand(err error) *clilib.Command {
@@ -71,8 +71,8 @@ func TestGeneratorIncludesSubcommands(t *testing.T) {
 }
 
 func TestUpdateCommandRequiresSupportedUpdater(t *testing.T) {
-	rt := conductor.New(conductor.App{Name: "demo"})
-	root := &clilib.Command{Commands: []*clilib.Command{curfave.UpdateCommand(rt)}}
+	app := conductor.New(conductor.App{Name: "demo"})
+	root := &clilib.Command{Commands: []*clilib.Command{curfave.UpdateCommand(app)}}
 	err := root.Run(context.Background(), []string{"demo", "update"})
 	require.EqualError(
 		t,

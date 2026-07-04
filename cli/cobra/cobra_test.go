@@ -16,10 +16,10 @@ import (
 
 func newProgram(t *testing.T, root *cobralib.Command, opts ...ccobra.Option) *ccobra.Program {
 	t.Helper()
-	rt := conductor.New(conductor.App{Name: "demo", Description: "Test app."})
+	app := conductor.New(conductor.App{Name: "demo", Description: "Test app."})
 	root.SetOut(new(bytes.Buffer))
 	root.SetErr(new(bytes.Buffer))
-	return ccobra.New(rt, root, opts...)
+	return ccobra.New(app, root, opts...)
 }
 
 func greetCommand(err error) *cobralib.Command {
@@ -80,8 +80,8 @@ func TestGeneratorIncludesSubcommands(t *testing.T) {
 }
 
 func TestUpdateCommandRequiresSupportedUpdater(t *testing.T) {
-	rt := conductor.New(conductor.App{Name: "demo"})
-	cmd := ccobra.UpdateCommand(rt)
+	app := conductor.New(conductor.App{Name: "demo"})
+	cmd := ccobra.UpdateCommand(app)
 	cmd.SetOut(new(bytes.Buffer))
 	cmd.SetErr(new(bytes.Buffer))
 	err := cmd.ExecuteContext(context.Background())

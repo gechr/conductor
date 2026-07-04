@@ -26,9 +26,9 @@ func (greetCmd) Run() error { return nil }
 
 func newProgram(t *testing.T, cli any, opts ...ckong.Option) *ckong.Program {
 	t.Helper()
-	rt := conductor.New(conductor.App{Name: "demo", Description: "Test app."})
+	app := conductor.New(conductor.App{Name: "demo", Description: "Test app."})
 	opts = append(opts, ckong.WithKongOptions(konglib.Writers(io.Discard, io.Discard)))
-	prog, err := ckong.New(rt, cli, opts...)
+	prog, err := ckong.New(app, cli, opts...)
 	require.NoError(t, err)
 	return prog
 }
@@ -76,9 +76,9 @@ type boomCmd struct{}
 func (boomCmd) Run() error { return errors.New("boom") }
 
 func TestUpdateCmdRequiresSupportedUpdater(t *testing.T) {
-	rt := conductor.New(conductor.App{Name: "demo"})
+	app := conductor.New(conductor.App{Name: "demo"})
 	cmd := &ckong.UpdateCmd{}
-	err := cmd.Run(rt)
+	err := cmd.Run(app)
 	require.EqualError(
 		t,
 		err,
