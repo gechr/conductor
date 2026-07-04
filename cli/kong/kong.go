@@ -4,6 +4,7 @@
 package kong
 
 import (
+	"context"
 	"errors"
 
 	konglib "github.com/alecthomas/kong"
@@ -12,6 +13,7 @@ import (
 	"github.com/gechr/clib/help"
 	"github.com/gechr/clog"
 	"github.com/gechr/conductor"
+	"github.com/gechr/conductor/internal/update"
 )
 
 // Program is the assembled kong CLI. All fields are exported and may be
@@ -122,6 +124,17 @@ func New(app *conductor.Runtime, cli any, opts ...Option) (*Program, error) {
 func (p *Program) Run(args []string) int {
 	if handled, code := p.completion(); handled {
 		return code
+	}
+
+	// Self-update runs before parsing, like completion, so it works even in
+	// grammars whose validation demands arguments or a subcommand.
+	if _, ok := p.cli.(conductor.SelfUpdater); ok {
+		if requested, err := update.Requested(args); requested {
+			if err == nil {
+				err = update.Run(context.Background(), p.Runtime, update.Options{})
+			}
+			return conductor.ExitCode(err, p.cfg.exitCode)
+		}
 	}
 
 	kctx, err := p.Parser.Parse(args)

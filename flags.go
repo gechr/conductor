@@ -17,6 +17,12 @@ type FlagSource interface {
 	ConductorFlags() Flags
 }
 
+// SelfUpdater is implemented by CLI grammars that opt into the hidden
+// --self-update flag, usually by embedding an adapter's SelfUpdateFlag.
+type SelfUpdater interface {
+	SelfUpdateRequested() bool
+}
+
 // ApplyFlags is the post-parse phase: it maps the standard flags onto clog.
 // Tools with bespoke verbosity semantics skip FlagSource and call clog
 // directly instead.

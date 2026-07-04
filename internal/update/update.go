@@ -5,6 +5,7 @@ package update
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/gechr/clive/updater"
@@ -20,6 +21,29 @@ type Options struct {
 	Stable      bool
 	Dev         bool
 	NoUninstall bool
+}
+
+// Requested reports whether args contains the hidden --self-update flag,
+// scanning only up to a "--" terminator. Like completion preflight, the scan
+// runs before parsing so self-update works even in grammars whose validation
+// would otherwise demand arguments or a subcommand. The flag is mutually
+// exclusive with everything else: when it appears alongside any other
+// argument, the first result is still true and the error explains the
+// conflict.
+func Requested(args []string) (bool, error) {
+	requested := false
+	for _, arg := range args {
+		if arg == "--" {
+			break
+		}
+		if arg == "--self-update" {
+			requested = true
+		}
+	}
+	if requested && len(args) > 1 {
+		return true, errors.New("--self-update cannot be combined with other arguments")
+	}
+	return requested, nil
 }
 
 // Run checks for or installs an update via App.Updater, which must implement

@@ -9,8 +9,7 @@ import (
 )
 
 // Flags are the standard flags: verbosity and color. [New] prepends them to
-// the root command's flags and applies them to clog in the chained Before
-// hook.
+// the root command's flags and applies them in the chained Before hook.
 type Flags struct {
 	Verbose bool
 	Quiet   bool

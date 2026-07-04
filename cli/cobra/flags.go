@@ -8,7 +8,7 @@ import (
 
 // Flags are the standard persistent flags: verbosity and color. [New]
 // registers them on the root command's persistent flag set and applies them
-// to clog in the chained PersistentPreRunE.
+// in the chained PersistentPreRunE.
 type Flags struct {
 	Verbose bool
 	Quiet   bool
