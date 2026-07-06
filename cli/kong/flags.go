@@ -31,7 +31,7 @@ func (f Flags) ConductorFlags() conductor.Flags {
 // [Program.Run] performs the self-update via App.Updater instead of
 // dispatching, and exits.
 type SelfUpdateFlag struct {
-	SelfUpdate bool `name:"self-update" help:"Update to the latest version" hidden:""`
+	SelfUpdate bool `name:"self-update" help:"Update to the latest version" hidden:"" clib:"complete-hidden"`
 }
 
 // SelfUpdateRequested reports whether the self-update flag was set.

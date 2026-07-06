@@ -78,11 +78,14 @@ func WithoutStandardFlags() Option {
 func WithSelfUpdate() Option {
 	return func(p *Program) {
 		p.cfg.selfUpdate = true
-		p.Root.Flags = append(p.Root.Flags, &clilib.BoolFlag{
+		flag := &clilib.BoolFlag{
 			Name:   "self-update",
 			Usage:  "Update to the latest version",
 			Hidden: true,
-		})
+		}
+		// Hidden from --help, but still offered as a shell completion.
+		cliburfave.Extend(flag, cliburfave.FlagExtra{CompleteHidden: true})
+		p.Root.Flags = append(p.Root.Flags, flag)
 	}
 }
 

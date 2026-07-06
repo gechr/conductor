@@ -83,6 +83,8 @@ func WithSelfUpdate() Option {
 		fs := p.Root.Flags()
 		fs.Bool("self-update", false, "Update to the latest version")
 		_ = fs.MarkHidden("self-update")
+		// Hidden from --help, but still offered as a shell completion.
+		clibcobra.Extend(fs.Lookup("self-update"), clibcobra.FlagExtra{CompleteHidden: true})
 	}
 }
 
