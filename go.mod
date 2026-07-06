@@ -5,8 +5,8 @@ go 1.26.4
 require (
 	github.com/alecthomas/kong v1.15.0
 	github.com/gechr/clib v0.5.11
-	github.com/gechr/clive v0.2.9
-	github.com/gechr/clog v0.11.15
+	github.com/gechr/clive v0.3.1
+	github.com/gechr/clog v0.11.18
 	github.com/gechr/x v0.2.13
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10
@@ -162,7 +162,7 @@ require (
 	github.com/nishanths/predeclared v0.2.2 // indirect
 	github.com/nunnatsa/ginkgolinter v0.23.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
-	github.com/pelletier/go-toml/v2 v2.4.2 // indirect
+	github.com/pelletier/go-toml/v2 v2.4.3 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_golang v1.12.1 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
