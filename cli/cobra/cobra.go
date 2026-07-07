@@ -30,11 +30,12 @@ type Program struct {
 }
 
 type config struct {
-	sections        []clibcobra.SectionsOption
-	generator       []func(*complete.Generator)
 	exitCode        func(error) int
-	selfUpdate      bool
+	generator       []func(*complete.Generator)
+	helpOptions     []help.Option
 	noStandardFlags bool
+	sections        []clibcobra.SectionsOption
+	selfUpdate      bool
 }
 
 // Option configures [New].
@@ -43,6 +44,18 @@ type Option func(*Program)
 // WithSections configures the help section builder.
 func WithSections(opts ...clibcobra.SectionsOption) Option {
 	return func(p *Program) { p.cfg.sections = append(p.cfg.sections, opts...) }
+}
+
+// WithAlwaysShowExamples shows the Examples section on short help (-h) as well
+// as long help (--help). By default examples are hidden on -h.
+func WithAlwaysShowExamples() Option {
+	return func(p *Program) { p.cfg.helpOptions = append(p.cfg.helpOptions, help.WithAlwaysShowExamples()) }
+}
+
+// WithAlwaysShowDescription shows the description blurb on short help (-h) as
+// well as long help (--help). By default the description is hidden on -h.
+func WithAlwaysShowDescription() Option {
+	return func(p *Program) { p.cfg.helpOptions = append(p.cfg.helpOptions, help.WithAlwaysShowDescription()) }
 }
 
 // WithGenerator customises the completion generator before completion
@@ -108,12 +121,6 @@ func New(app *conductor.Runtime, root *cobralib.Command, opts ...Option) *Progra
 	// shorthand and help text.
 	root.Flags().BoolP("version", "V", false, "Print version information")
 
-	root.SetHelpFunc(clibcobra.HelpFunc(
-		app.Renderer,
-		clibcobra.SectionsWithOptions(),
-		help.WithHelpFlags(app.App.HelpShortDesc(), app.App.HelpLongDesc()),
-	))
-
 	p := &Program{
 		Runtime:    app,
 		Root:       root,
@@ -127,13 +134,15 @@ func New(app *conductor.Runtime, root *cobralib.Command, opts ...Option) *Progra
 	if !p.cfg.noStandardFlags {
 		p.Flags.Register(root.PersistentFlags())
 	}
-	if len(p.cfg.sections) > 0 {
-		root.SetHelpFunc(clibcobra.HelpFunc(
-			app.Renderer,
-			clibcobra.SectionsWithOptions(p.cfg.sections...),
+	// Set the help func after options are applied so section and help-behavior
+	// knobs (e.g. WithAlwaysShowDescription) are reflected.
+	root.SetHelpFunc(clibcobra.HelpFunc(
+		app.Renderer,
+		clibcobra.SectionsWithOptions(p.cfg.sections...),
+		append([]help.Option{
 			help.WithHelpFlags(app.App.HelpShortDesc(), app.App.HelpLongDesc()),
-		))
-	}
+		}, p.cfg.helpOptions...)...,
+	))
 
 	prev := root.PersistentPreRunE
 	root.PersistentPreRunE = func(cmd *cobralib.Command, args []string) error {

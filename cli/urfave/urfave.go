@@ -29,11 +29,12 @@ type Program struct {
 }
 
 type config struct {
-	sections        []cliburfave.SectionsOption
-	generator       []func(*complete.Generator)
 	exitCode        func(error) int
-	selfUpdate      bool
+	generator       []func(*complete.Generator)
+	helpOptions     []help.Option
 	noStandardFlags bool
+	sections        []cliburfave.SectionsOption
+	selfUpdate      bool
 }
 
 // Option configures [New].
@@ -42,6 +43,18 @@ type Option func(*Program)
 // WithSections configures the help section builder.
 func WithSections(opts ...cliburfave.SectionsOption) Option {
 	return func(p *Program) { p.cfg.sections = append(p.cfg.sections, opts...) }
+}
+
+// WithAlwaysShowExamples shows the Examples section on short help (-h) as well
+// as long help (--help). By default examples are hidden on -h.
+func WithAlwaysShowExamples() Option {
+	return func(p *Program) { p.cfg.helpOptions = append(p.cfg.helpOptions, help.WithAlwaysShowExamples()) }
+}
+
+// WithAlwaysShowDescription shows the description blurb on short help (-h) as
+// well as long help (--help). By default the description is hidden on -h.
+func WithAlwaysShowDescription() Option {
+	return func(p *Program) { p.cfg.helpOptions = append(p.cfg.helpOptions, help.WithAlwaysShowDescription()) }
 }
 
 // WithGenerator customises the completion generator before completion
@@ -130,7 +143,9 @@ func New(app *conductor.Runtime, root *clilib.Command, opts ...Option) *Program 
 	clilib.HelpPrinter = cliburfave.HelpPrinter(
 		app.Renderer,
 		cliburfave.SectionsWithOptions(p.cfg.sections...),
-		help.WithHelpFlags(app.App.HelpShortDesc(), app.App.HelpLongDesc()),
+		append([]help.Option{
+			help.WithHelpFlags(app.App.HelpShortDesc(), app.App.HelpLongDesc()),
+		}, p.cfg.helpOptions...)...,
 	)
 
 	prev := root.Before

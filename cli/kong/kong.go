@@ -28,11 +28,12 @@ type Program struct {
 }
 
 type config struct {
-	kongOptions  []konglib.Option
-	nodeSections []clibkong.NodeSectionsOption
+	exitCode     func(error) int
 	generator    []func(*complete.Generator)
 	handler      complete.Handler
-	exitCode     func(error) int
+	helpOptions  []help.Option
+	kongOptions  []konglib.Option
+	nodeSections []clibkong.NodeSectionsOption
 	noDispatch   bool
 }
 
@@ -48,6 +49,18 @@ func WithKongOptions(opts ...konglib.Option) Option {
 // WithNodeSections configures the help section builder.
 func WithNodeSections(opts ...clibkong.NodeSectionsOption) Option {
 	return func(c *config) { c.nodeSections = append(c.nodeSections, opts...) }
+}
+
+// WithAlwaysShowExamples shows the Examples section on short help (-h) as well
+// as long help (--help). By default examples are hidden on -h.
+func WithAlwaysShowExamples() Option {
+	return func(c *config) { c.helpOptions = append(c.helpOptions, help.WithAlwaysShowExamples()) }
+}
+
+// WithAlwaysShowDescription shows the description blurb on short help (-h) as
+// well as long help (--help). By default the description is hidden on -h.
+func WithAlwaysShowDescription() Option {
+	return func(c *config) { c.helpOptions = append(c.helpOptions, help.WithAlwaysShowDescription()) }
 }
 
 // WithBind binds extra values into the kong context for command Run methods.
@@ -107,7 +120,9 @@ func New(app *conductor.Runtime, cli any, opts ...Option) (*Program, error) {
 		konglib.Help(clibkong.HelpPrinterFunc(
 			app.Renderer,
 			clibkong.NodeSectionsFunc(cfg.nodeSections...),
-			help.WithHelpFlags(app.App.HelpShortDesc(), app.App.HelpLongDesc()),
+			append([]help.Option{
+				help.WithHelpFlags(app.App.HelpShortDesc(), app.App.HelpLongDesc()),
+			}, cfg.helpOptions...)...,
 		)),
 		konglib.Bind(app),
 		konglib.Bind(gen),
