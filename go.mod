@@ -4,7 +4,7 @@ go 1.26.4
 
 require (
 	github.com/alecthomas/kong v1.15.0
-	github.com/gechr/clib v0.6.1
+	github.com/gechr/clib v0.6.2
 	github.com/gechr/clive v0.3.2
 	github.com/gechr/clog v0.12.5
 	github.com/gechr/x v0.2.14
