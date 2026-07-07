@@ -4,10 +4,10 @@ go 1.26.4
 
 require (
 	github.com/alecthomas/kong v1.15.0
-	github.com/gechr/clib v0.5.11
+	github.com/gechr/clib v0.6.1
 	github.com/gechr/clive v0.3.2
-	github.com/gechr/clog v0.11.20
-	github.com/gechr/x v0.2.13
+	github.com/gechr/clog v0.12.5
+	github.com/gechr/x v0.2.14
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.11.1
