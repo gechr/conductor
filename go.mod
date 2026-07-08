@@ -6,9 +6,9 @@ go 1.26.5
 require (
 	github.com/alecthomas/kong v1.15.0
 	github.com/gechr/clib v0.6.4
-	github.com/gechr/clive v0.3.2
-	github.com/gechr/clog v0.12.6
-	github.com/gechr/x v0.2.14
+	github.com/gechr/clive v0.4.0
+	github.com/gechr/clog v0.12.7
+	github.com/gechr/x v0.2.15
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.11.1
@@ -220,12 +220,11 @@ require (
 	go.uber.org/multierr v1.10.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/exp v0.0.0-20250813145105-42675adae3e6 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20260209203927-2842357ff358 // indirect
 	golang.org/x/mod v0.37.0 // indirect
 	golang.org/x/sync v0.21.0 // indirect
-	golang.org/x/sys v0.46.0 // indirect
-	golang.org/x/term v0.44.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
+	golang.org/x/term v0.45.0 // indirect
 	golang.org/x/text v0.38.0 // indirect
 	golang.org/x/tools v0.47.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
