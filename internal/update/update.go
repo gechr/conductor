@@ -58,8 +58,18 @@ func Run(ctx context.Context, app *conductor.Runtime, opts Options) error {
 		)
 	}
 	// Leaving a conflicting install in place is inherently Homebrew-specific.
-	if cfg, ok := u.(brew.Config); ok && opts.NoUninstall {
-		brew.WithOnConflict(brew.ConflictIgnore)(&cfg)
+	// Conductor defaults stricter than clive's own zero-value ConflictWarn:
+	// stray copies get uninstalled unless the app opts into a gentler policy
+	// via App.ConflictPolicy, or the user passes --no-uninstall.
+	if cfg, ok := u.(brew.Config); ok {
+		policy := brew.ConflictUninstall
+		if app.App.ConflictPolicy != nil {
+			policy = *app.App.ConflictPolicy
+		}
+		if opts.NoUninstall {
+			policy = brew.ConflictIgnore
+		}
+		brew.WithOnConflict(policy)(&cfg)
 		u = cfg
 	}
 	if opts.Check {

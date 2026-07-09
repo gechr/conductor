@@ -13,6 +13,7 @@ import (
 	"github.com/gechr/clive"
 	"github.com/gechr/clive/notify"
 	"github.com/gechr/clive/updater"
+	"github.com/gechr/clive/updater/brew"
 	"github.com/gechr/clog"
 	xstrings "github.com/gechr/x/strings"
 )
@@ -61,6 +62,11 @@ type App struct {
 	// NotifyOnly, when non-empty, restricts the update check to exactly these
 	// command verbs.
 	NotifyOnly []string
+	// ConflictPolicy overrides Conductor's default of [brew.ConflictUninstall]
+	// for stray non-Homebrew copies found on PATH during a Homebrew update -
+	// stricter than clive's own zero-value default of [brew.ConflictWarn]. Only
+	// meaningful when Updater is a brew.Config; nil accepts Conductor's default.
+	ConflictPolicy *brew.ConflictPolicy
 
 	// Theme overrides the help theme; nil means [theme.Auto].
 	Theme *theme.Theme

@@ -78,7 +78,7 @@ go build -ldflags "-X github.com/gechr/clive.version=$(VERSION) -X github.com/ge
 ## Update notifications
 
 - Set `App.Updater` to any `updater.Tool` (`brew.New`, `goinstall.New`, `github.New`) to enable the passive "update available" hint, cached and rate-limited by clive; `<APP>_NO_UPDATE_CHECK` disables it.
-- The standard `update` subcommand ([`UpdateCmd`](cli/kong/commands.go) for kong; [`UpdateCommand`](cli/cobra/commands.go) for cobra/urfave) self-updates via whichever install method `App.Updater` uses, with `--check`, `--stable`, `--dev` and `--no-uninstall` (the latter two are Homebrew-specific).
+- The standard `update` subcommand ([`UpdateCmd`](cli/kong/commands.go) for kong; [`UpdateCommand`](cli/cobra/commands.go) for cobra/urfave) self-updates via whichever install method `App.Updater` uses, with `--check`, `--stable`, `--dev` and `--no-uninstall` (the latter two are Homebrew-specific). For Homebrew, Conductor defaults to uninstalling stray non-Homebrew copies on PATH (stricter than clive's own warn-only default); set `App.ConflictPolicy` to override.
 
 ## Escape hatches
 
