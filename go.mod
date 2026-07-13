@@ -8,7 +8,7 @@ require (
 	github.com/gechr/clib v0.6.7
 	github.com/gechr/clive v0.4.3
 	github.com/gechr/clog v0.13.6
-	github.com/gechr/x v0.3.4
+	github.com/gechr/x v0.3.7
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.11.1

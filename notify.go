@@ -42,5 +42,5 @@ func (r *Runtime) notifySkipped(command string) bool {
 	if len(r.App.NotifyOnly) > 0 {
 		return !slices.Contains(r.App.NotifyOnly, verb)
 	}
-	return xslices.ContainsAny(verb, notifySkipVerbs, r.App.NotifySkip)
+	return xslices.ContainedByAny(verb, notifySkipVerbs, r.App.NotifySkip)
 }
