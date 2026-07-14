@@ -119,7 +119,13 @@ func New(app *conductor.Runtime, cli any, opts ...Option) (*Program, error) {
 		konglib.Vars{"version": app.Version()},
 		konglib.Help(clibkong.HelpPrinterFunc(
 			app.Renderer,
-			clibkong.NodeSectionsFunc(cfg.nodeSections...),
+			// Inherited flags (the shared verbosity/color block) get their own
+			// "Global Options" section by default; a caller's WithNodeSections
+			// is applied after, so it can rename or otherwise override this.
+			clibkong.NodeSectionsFunc(append(
+				[]clibkong.NodeSectionsOption{clibkong.WithSeparateGlobalOptions()},
+				cfg.nodeSections...,
+			)...),
 			append([]help.Option{
 				help.WithHelpFlags(app.App.HelpShortDesc(), app.App.HelpLongDesc()),
 			}, cfg.helpOptions...)...,

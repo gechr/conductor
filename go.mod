@@ -3,9 +3,11 @@ module github.com/gechr/conductor
 // @clover
 go 1.26.5
 
+tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint
+
 require (
 	github.com/alecthomas/kong v1.15.0
-	github.com/gechr/clib v0.6.11
+	github.com/gechr/clib v0.6.13
 	github.com/gechr/clive v0.4.3
 	github.com/gechr/clog v0.13.8
 	github.com/gechr/x v0.3.7
@@ -235,5 +237,3 @@ require (
 	mvdan.cc/gofumpt v0.9.2 // indirect
 	mvdan.cc/unparam v0.0.0-20251027182757-5beb8c8f8f15 // indirect
 )
-
-tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint
