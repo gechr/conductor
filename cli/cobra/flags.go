@@ -10,8 +10,8 @@ import (
 // registers them on the root command's persistent flag set and applies them
 // in the chained PersistentPreRunE.
 type Flags struct {
-	Verbose bool
 	Quiet   bool
+	Verbose int // -v counter: 1 debug, 2 trace
 	Color   clog.ColorMode
 }
 
@@ -29,8 +29,14 @@ func (f *Flags) Register(fs *pflag.FlagSet) {
 		}
 		fs.BoolVarP(target, name, shorthand, false, usage)
 	}
-	registerBool(&f.Verbose, "verbose", "v", "Show debug logs")
 	registerBool(&f.Quiet, "quiet", "q", "Only show errors")
+	if fs.Lookup("verbose") == nil {
+		shorthand := "v"
+		if fs.ShorthandLookup(shorthand) != nil {
+			shorthand = ""
+		}
+		fs.CountVarP(&f.Verbose, "verbose", shorthand, "Increase log verbosity")
+	}
 	if fs.Lookup("color") == nil {
 		fs.TextVar(&f.Color, "color", clog.ColorAuto, "When to use color (auto, always, never)")
 	}
@@ -38,5 +44,5 @@ func (f *Flags) Register(fs *pflag.FlagSet) {
 
 // ConductorFlags implements [conductor.FlagSource].
 func (f *Flags) ConductorFlags() conductor.Flags {
-	return conductor.Flags{Verbose: f.Verbose, Quiet: f.Quiet, Color: f.Color}
+	return conductor.Flags{Verbosity: f.Verbose, Quiet: f.Quiet, Color: f.Color}
 }

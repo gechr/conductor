@@ -20,16 +20,16 @@ type Flags struct {
 func (f *Flags) flags() []clilib.Flag {
 	return []clilib.Flag{
 		&clilib.BoolFlag{
-			Name:        "verbose",
-			Aliases:     []string{"v"},
-			Usage:       "Show debug logs",
-			Destination: &f.Verbose,
-		},
-		&clilib.BoolFlag{
 			Name:        "quiet",
 			Aliases:     []string{"q"},
 			Usage:       "Only show errors",
 			Destination: &f.Quiet,
+		},
+		&clilib.BoolFlag{
+			Name:        "verbose",
+			Aliases:     []string{"v"},
+			Usage:       "Show debug logs",
+			Destination: &f.Verbose,
 		},
 		&clilib.StringFlag{
 			Name:  "color",
