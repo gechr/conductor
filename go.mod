@@ -5,7 +5,7 @@ go 1.26.5
 
 require (
 	github.com/alecthomas/kong v1.15.0
-	github.com/gechr/clib v0.6.9
+	github.com/gechr/clib v0.6.10
 	github.com/gechr/clive v0.4.3
 	github.com/gechr/clog v0.13.8
 	github.com/gechr/x v0.3.7

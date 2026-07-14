@@ -14,9 +14,9 @@ import (
 type Flags struct {
 	clibkong.CompletionFlags
 
-	Verbose int            `help:"Increase log verbosity (-v debug, -vv trace)" short:"v"        type:"counter"  xor:"verbosity"`
-	Quiet   bool           `help:"Only show errors"                             short:"q"        xor:"verbosity"`
-	Color   clog.ColorMode `help:"When to use color"                            aliases:"colour" default:"auto"  enum:"auto,always,never"`
+	Verbose int            `help:"Increase log verbosity" short:"v"        type:"counter"  xor:"verbosity"`
+	Quiet   bool           `help:"Only show errors"       short:"q"        xor:"verbosity"`
+	Color   clog.ColorMode `help:"When to use color"      aliases:"colour" default:"auto"  enum:"auto,always,never"`
 
 	VersionFlag konglib.VersionFlag `name:"version" help:"Print version information" short:"V" hidden:""`
 }
