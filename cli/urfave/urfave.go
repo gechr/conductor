@@ -150,7 +150,9 @@ func New(app *conductor.Runtime, root *clilib.Command, opts ...Option) *Program 
 
 	prev := root.Before
 	root.Before = func(ctx context.Context, cmd *clilib.Command) (context.Context, error) {
-		app.ApplyFlags(p.Flags.ConductorFlags())
+		if err := app.ApplyFlags(p.Flags.ConductorFlags()); err != nil {
+			return ctx, err
+		}
 		p.flush = app.Notify(cmd.Args().First())
 		if prev != nil {
 			return prev(ctx, cmd)

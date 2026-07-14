@@ -14,16 +14,16 @@ import (
 type Flags struct {
 	clibkong.CompletionFlags
 
-	Verbose bool           `help:"Show debug logs"   short:"v"        xor:"verbosity"`
-	Quiet   bool           `help:"Only show errors"  short:"q"        xor:"verbosity"`
-	Color   clog.ColorMode `help:"When to use color" aliases:"colour" default:"auto"  enum:"auto,always,never"`
+	Verbose int            `help:"Increase log verbosity (-v debug, -vv trace)" short:"v"        type:"counter"  xor:"verbosity"`
+	Quiet   bool           `help:"Only show errors"                             short:"q"        xor:"verbosity"`
+	Color   clog.ColorMode `help:"When to use color"                            aliases:"colour" default:"auto"  enum:"auto,always,never"`
 
 	VersionFlag konglib.VersionFlag `name:"version" help:"Print version information" short:"V" hidden:""`
 }
 
 // ConductorFlags implements [conductor.FlagSource].
 func (f Flags) ConductorFlags() conductor.Flags {
-	return conductor.Flags{Verbose: f.Verbose, Quiet: f.Quiet, Color: f.Color}
+	return conductor.Flags{Verbosity: f.Verbose, Quiet: f.Quiet, Color: f.Color}
 }
 
 // SelfUpdateFlag is an embeddable hidden --self-update flag for flag-only

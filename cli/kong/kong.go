@@ -174,7 +174,9 @@ func (p *Program) Run(args []string) int {
 	}
 
 	if src, ok := p.cli.(conductor.FlagSource); ok {
-		p.Runtime.ApplyFlags(src.ConductorFlags())
+		if err := p.Runtime.ApplyFlags(src.ConductorFlags()); err != nil {
+			return conductor.ExitCode(err, p.cfg.exitCode)
+		}
 	}
 
 	flush := p.Runtime.Notify(kctx.Command())

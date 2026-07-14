@@ -62,17 +62,28 @@ func TestConfigureLogRunsAfterDefaults(t *testing.T) {
 func TestApplyFlags(t *testing.T) {
 	rt := New(App{Name: "demo"})
 
-	rt.ApplyFlags(Flags{Verbose: true})
+	require.NoError(t, rt.ApplyFlags(Flags{Verbose: true}))
 	assert.True(t, clog.IsVerbose())
 
-	rt.ApplyFlags(Flags{})
+	require.NoError(t, rt.ApplyFlags(Flags{}))
 	assert.False(t, clog.IsVerbose())
 
-	rt.ApplyFlags(Flags{Quiet: true})
+	// Verbosity counter: 1 is debug, 2+ is trace.
+	require.NoError(t, rt.ApplyFlags(Flags{Verbosity: 1}))
+	assert.Equal(t, clog.LevelDebug, clog.GetLevel())
+
+	require.NoError(t, rt.ApplyFlags(Flags{Verbosity: 2}))
+	assert.Equal(t, clog.LevelTrace, clog.GetLevel())
+
+	// Out of range is rejected rather than clamped.
+	require.Error(t, rt.ApplyFlags(Flags{Verbosity: maxVerbosity + 1}))
+	require.Error(t, rt.ApplyFlags(Flags{Verbosity: -1}))
+
+	require.NoError(t, rt.ApplyFlags(Flags{Quiet: true}))
 	assert.Equal(t, clog.LevelError, clog.GetLevel())
 
 	// Restore a sane default level for other tests.
-	rt.ApplyFlags(Flags{})
+	require.NoError(t, rt.ApplyFlags(Flags{}))
 }
 
 func TestNotifySkipped(t *testing.T) {

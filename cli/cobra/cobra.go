@@ -146,7 +146,9 @@ func New(app *conductor.Runtime, root *cobralib.Command, opts ...Option) *Progra
 
 	prev := root.PersistentPreRunE
 	root.PersistentPreRunE = func(cmd *cobralib.Command, args []string) error {
-		app.ApplyFlags(p.Flags.ConductorFlags())
+		if err := app.ApplyFlags(p.Flags.ConductorFlags()); err != nil {
+			return err
+		}
 		p.flush = app.Notify(commandVerb(root, cmd))
 		if prev != nil {
 			return prev(cmd, args)
