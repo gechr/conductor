@@ -35,7 +35,7 @@ func (f *Flags) Register(fs *pflag.FlagSet) {
 		if fs.ShorthandLookup(shorthand) != nil {
 			shorthand = ""
 		}
-		fs.CountVarP(&f.Verbose, "verbose", shorthand, "Increase log verbosity")
+		fs.CountVarP(&f.Verbose, "verbose", shorthand, "Increase log verbosity (repeatable)")
 	}
 	if fs.Lookup("color") == nil {
 		fs.TextVar(&f.Color, "color", clog.ColorAuto, "When to use color (auto, always, never)")

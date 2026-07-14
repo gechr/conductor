@@ -11,9 +11,10 @@ import (
 // Flags are the standard flags: verbosity and color. [New] prepends them to
 // the root command's flags and applies them in the chained Before hook.
 type Flags struct {
-	Verbose bool
-	Quiet   bool
-	Color   clog.ColorMode
+	Verbose   bool
+	Verbosity int
+	Quiet     bool
+	Color     clog.ColorMode
 }
 
 // flags builds the urfave flag definitions bound to f.
@@ -28,8 +29,9 @@ func (f *Flags) flags() []clilib.Flag {
 		&clilib.BoolFlag{
 			Name:        "verbose",
 			Aliases:     []string{"v"},
-			Usage:       "Show debug logs",
+			Usage:       "Increase log verbosity (repeatable)",
 			Destination: &f.Verbose,
+			Config:      clilib.BoolConfig{Count: &f.Verbosity},
 		},
 		&clilib.StringFlag{
 			Name:  "color",
@@ -44,5 +46,10 @@ func (f *Flags) flags() []clilib.Flag {
 
 // ConductorFlags implements [conductor.FlagSource].
 func (f *Flags) ConductorFlags() conductor.Flags {
-	return conductor.Flags{Verbose: f.Verbose, Quiet: f.Quiet, Color: f.Color}
+	return conductor.Flags{
+		Verbose:   f.Verbose,
+		Verbosity: f.Verbosity,
+		Quiet:     f.Quiet,
+		Color:     f.Color,
+	}
 }

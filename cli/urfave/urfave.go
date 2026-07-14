@@ -108,6 +108,7 @@ func WithSelfUpdate() Option {
 // claims), completion flags, and a chained Before hook that applies the
 // standard flags and starts the update notification.
 func New(app *conductor.Runtime, root *clilib.Command, opts ...Option) *Program {
+	root.UseShortOptionHandling = true
 	if root.Name == "" {
 		root.Name = app.App.Name
 	}

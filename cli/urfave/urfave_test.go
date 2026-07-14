@@ -32,6 +32,7 @@ func TestNewDefaultsIdentity(t *testing.T) {
 	prog := newProgram(t, root)
 	assert.Equal(t, "demo", prog.Root.Name)
 	assert.Equal(t, "Test app.", prog.Root.Usage)
+	assert.True(t, prog.Root.UseShortOptionHandling)
 }
 
 func TestRunDispatchesAndAppliesFlags(t *testing.T) {
@@ -42,6 +43,60 @@ func TestRunDispatchesAndAppliesFlags(t *testing.T) {
 	code := prog.Run(context.Background(), []string{"demo", "--verbose", "greet"})
 	assert.Equal(t, 0, code)
 	assert.True(t, clog.IsVerbose(), "verbose flag should reach clog")
+}
+
+func TestRunAppliesRepeatableVerbosity(t *testing.T) {
+	tests := []struct {
+		name string
+		args []string
+	}{
+		{name: "separate short flags", args: []string{"demo", "-v", "-v", "-v", "greet"}},
+		{name: "combined short flags", args: []string{"demo", "-vvv", "greet"}},
+		{
+			name: "long flags",
+			args: []string{"demo", "--verbose", "--verbose", "--verbose", "greet"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Cleanup(func() { clog.SetLevel(clog.LevelInfo) })
+
+			root := &clilib.Command{Commands: []*clilib.Command{greetCommand(nil)}}
+			prog := newProgram(t, root)
+			require.Equal(t, 0, prog.Run(context.Background(), tt.args))
+			assert.True(t, prog.Flags.Verbose)
+			assert.Equal(t, 3, prog.Flags.Verbosity)
+			assert.Equal(t, clog.LevelTrace, clog.GetLevel())
+		})
+	}
+}
+
+func TestRunRejectsExcessiveVerbosity(t *testing.T) {
+	root := &clilib.Command{Commands: []*clilib.Command{greetCommand(nil)}}
+	prog := newProgram(t, root)
+	err := prog.Root.Run(context.Background(), []string{"demo", "-vvvv", "greet"})
+	require.EqualError(
+		t,
+		err,
+		"verbosity 4 out of range (0-3) - use -v for debug or -vv for trace",
+	)
+	assert.Equal(t, 4, prog.Flags.Verbosity)
+}
+
+func TestVerboseFlagDescription(t *testing.T) {
+	root := &clilib.Command{}
+	prog := newProgram(t, root)
+	for _, flag := range prog.Root.Flags {
+		names := flag.Names()
+		if len(names) > 0 && names[0] == "verbose" {
+			verbose, ok := flag.(*clilib.BoolFlag)
+			require.True(t, ok)
+			assert.Equal(t, "Increase log verbosity (repeatable)", verbose.Usage)
+			assert.Same(t, &prog.Flags.Verbosity, verbose.Config.Count)
+			return
+		}
+	}
+	t.Fatal("verbose flag not registered")
 }
 
 func TestRunCustomExitCode(t *testing.T) {
