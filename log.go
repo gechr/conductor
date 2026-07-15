@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/gechr/clog"
-	"github.com/gechr/x/human"
 )
 
 // defaultTimeGradientMax is the duration mapped to the end of the duration
@@ -22,10 +21,5 @@ const defaultTimeGradientMax = 20 * time.Second
 func LogDefaults() {
 	clog.SetOutput(clog.Stderr(clog.ColorAuto))
 	clog.SetSliceSeparator(" ")
-
-	// Start from the current formats so env-loaded settings survive.
-	formats := clog.Default.FieldFormats()
-	formats.DurationFormat = human.FormatDuration
-	clog.SetFieldFormats(formats)
 	clog.SetTimeGradientMax(defaultTimeGradientMax)
 }
