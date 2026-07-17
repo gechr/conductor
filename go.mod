@@ -7,8 +7,8 @@ tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint
 
 require (
 	github.com/alecthomas/kong v1.16.0
-	github.com/gechr/clib v0.7.3
-	github.com/gechr/clive v0.4.5
+	github.com/gechr/clib v0.7.6
+	github.com/gechr/clive v0.4.6
 	github.com/gechr/clog v0.13.17
 	github.com/gechr/x v0.3.10
 	github.com/spf13/cobra v1.10.2

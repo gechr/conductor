@@ -196,10 +196,10 @@ github.com/fsnotify/fsnotify v1.6.0 h1:n+5WquG0fcWoWp6xPWfHdbskMCQaFnG6PfBrh1Ky4
 github.com/fsnotify/fsnotify v1.6.0/go.mod h1:sl3t1tCWJFWoRz9R8WJCbQihKKwmorjAbSClcnxKAGw=
 github.com/fzipp/gocyclo v0.6.0 h1:lsblElZG7d3ALtGMx9fmxeTKZaLLpU8mET09yN4BBLo=
 github.com/fzipp/gocyclo v0.6.0/go.mod h1:rXPyn8fnlpa0R2csP/31uerbiVBugk5whMdlyaLkLoA=
-github.com/gechr/clib v0.7.3 h1:YbMfb3SVQgMFcPSPn3ZeTtjDRIq5qEJRDxzu3M0B5HE=
-github.com/gechr/clib v0.7.3/go.mod h1:svTH3NKtMyioQx/QohD0gO/Qau7+tXSn7BhI78RqI8k=
-github.com/gechr/clive v0.4.5 h1:70GhKsSW03jZAFUFSVKoZYc9Tb8sAus2eefAGRJDCus=
-github.com/gechr/clive v0.4.5/go.mod h1:6iwfBzBSrDFjbFGIRhN4XSQUiVzhkickxxqcutxhRl0=
+github.com/gechr/clib v0.7.6 h1:u30e7cNxzE2ckIJ8dAiwo8gdTiPqw6t2Cc4LMSXCAEY=
+github.com/gechr/clib v0.7.6/go.mod h1:IOLy69ACCE6/+wDapBBAMODRNkzf1suCcFQJ7f/rU9c=
+github.com/gechr/clive v0.4.6 h1:zpv+iAz7WibarVy4Cz1dXBto1dGhK2mi4LWde3VCCxA=
+github.com/gechr/clive v0.4.6/go.mod h1:6iwfBzBSrDFjbFGIRhN4XSQUiVzhkickxxqcutxhRl0=
 github.com/gechr/clog v0.13.17 h1:jgAJO+/M0MjxJkxu2ih80qz6vemOHxh6nIYmhSnk0SM=
 github.com/gechr/clog v0.13.17/go.mod h1:3yrSAEkVIshRoiDMtH/VkbMt14m1BCVJv4bpjO6Rbis=
 github.com/gechr/x v0.3.10 h1:2417qvAJ3cNACa5zitjqNHArTVCWQjhXpVIU7FbNq34=
