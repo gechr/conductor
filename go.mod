@@ -7,7 +7,7 @@ tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint
 
 require (
 	github.com/alecthomas/kong v1.16.1
-	github.com/gechr/clib v0.7.18
+	github.com/gechr/clib v0.7.19
 	github.com/gechr/clive v0.4.11
 	github.com/gechr/clog v0.17.1
 	github.com/gechr/gorules v0.0.3
