@@ -6,12 +6,12 @@ go 1.27.3
 tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint
 
 require (
-	github.com/alecthomas/kong v1.16.1
-	github.com/gechr/clib v0.8.2
-	github.com/gechr/clive v0.4.13
-	github.com/gechr/clog v0.17.4
+	github.com/alecthomas/kong v1.17.0
+	github.com/gechr/clib v0.8.5
+	github.com/gechr/clive v0.4.14
+	github.com/gechr/clog v0.17.6
 	github.com/gechr/gorules v0.0.4
-	github.com/gechr/x v0.6.4
+	github.com/gechr/x v0.6.5
 	github.com/quasilyte/go-ruleguard/dsl v0.3.23
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10
