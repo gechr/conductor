@@ -7,11 +7,11 @@ tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint
 
 require (
 	github.com/alecthomas/kong v1.17.0
-	github.com/gechr/clib v0.8.6
-	github.com/gechr/clive v0.4.15
-	github.com/gechr/clog v0.17.7
-	github.com/gechr/gorules v0.0.4
-	github.com/gechr/x v0.6.6
+	github.com/gechr/clib v0.8.7
+	github.com/gechr/clive v0.4.16
+	github.com/gechr/clog v0.18.1
+	github.com/gechr/gorules v0.0.5
+	github.com/gechr/x v0.7.2
 	github.com/quasilyte/go-ruleguard/dsl v0.3.23
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.1.0
@@ -22,7 +22,7 @@ require (
 require (
 	4d63.com/gocheckcompilerdirectives v1.4.0 // indirect
 	4d63.com/gochecknoglobals v0.2.2 // indirect
-	charm.land/lipgloss/v2 v2.1.0 // indirect
+	charm.land/lipgloss/v2 v2.1.1 // indirect
 	codeberg.org/chavacava/garif v0.2.1 // indirect
 	codeberg.org/polyfloyd/go-errorlint v1.9.0 // indirect
 	dev.gaijin.team/go/exhaustruct/v4 v4.0.0 // indirect
