@@ -86,19 +86,13 @@ func WithoutStandardFlags() Option {
 	return func(p *Program) { p.cfg.noStandardFlags = true }
 }
 
-// WithSelfUpdate adds the hidden --self-update flag for CLIs without
+// WithSelfUpdate adds the hidden +update argument for CLIs without
 // subcommands, which have no room for an update command. [Program.Run]
-// intercepts the flag before cobra executes and performs the self-update via
-// App.Updater; it is mutually exclusive with every other argument.
+// intercepts it before cobra executes and performs the self-update via
+// App.Updater; it is mutually exclusive with every other argument. Shell
+// completion offers it as the first argument.
 func WithSelfUpdate() Option {
-	return func(p *Program) {
-		p.cfg.selfUpdate = true
-		fs := p.Root.Flags()
-		fs.Bool("self-update", false, "Update to the latest version")
-		_ = fs.MarkHidden("self-update")
-		// Hidden from --help, but still offered as a shell completion.
-		clibcobra.Extend(fs.Lookup("self-update"), clibcobra.FlagExtra{CompleteHidden: true})
-	}
+	return func(p *Program) { p.cfg.selfUpdate = true }
 }
 
 // New wires Conductor onto root: identity defaults from the App, themed help,
@@ -167,7 +161,7 @@ func (p *Program) Run(ctx context.Context, args []string) int {
 		return code
 	}
 
-	// Self-update runs before cobra executes, like completion; the flag is
+	// Self-update runs before cobra executes, like completion; the argument is
 	// mutually exclusive with every other argument.
 	if p.cfg.selfUpdate {
 		if requested, err := update.Requested(args); requested {
@@ -193,6 +187,9 @@ func (p *Program) Generator() *complete.Generator {
 		complete.Spec{ShortFlag: "h", Terse: p.Runtime.App.HelpShortDesc()},
 		complete.Spec{LongFlag: "help", Terse: p.Runtime.App.HelpLongDesc()},
 	)
+	if p.cfg.selfUpdate {
+		gen.SoleArgs = append(gen.SoleArgs, update.SoleArg)
+	}
 	gen.Subs = clibcobra.Subcommands(p.Root)
 	for _, fn := range p.cfg.generator {
 		fn(gen)

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/gechr/clib/complete"
 	"github.com/gechr/clog"
 	"github.com/gechr/conductor"
 	ccobra "github.com/gechr/conductor/cli/cobra"
@@ -86,12 +87,34 @@ func TestWithSelfUpdate(t *testing.T) {
 		got = err
 		return 42
 	}))
-	require.Equal(t, 42, prog.Run(context.Background(), []string{"--self-update"}))
+	require.Equal(t, 42, prog.Run(context.Background(), []string{"+update"}))
 	require.EqualError(t, got, "update command requires a self-updating updater, got <nil>")
 
-	// The flag is mutually exclusive with every other argument.
-	require.Equal(t, 42, prog.Run(context.Background(), []string{"--self-update", "--verbose"}))
-	require.EqualError(t, got, "--self-update cannot be combined with other arguments")
+	// The argument is mutually exclusive with every other argument.
+	require.Equal(t, 42, prog.Run(context.Background(), []string{"+update", "--verbose"}))
+	require.EqualError(t, got, "+update cannot be combined with other arguments")
+
+	require.Equal(t,
+		[]complete.ValueDesc{{Value: "+update", Desc: "Update to the latest version"}},
+		prog.Generator().SoleArgs,
+	)
+	assert.Nil(t, root.Flags().Lookup("self-update"))
+}
+
+func TestWithSelfUpdateAfterTerminatorIsPositional(t *testing.T) {
+	var gotArgs []string
+	root := &cobralib.Command{RunE: func(_ *cobralib.Command, args []string) error {
+		gotArgs = args
+		return nil
+	}}
+	prog := newProgram(t, root, ccobra.WithSelfUpdate())
+	require.Equal(t, 0, prog.Run(context.Background(), []string{"--", "+update"}))
+	require.Equal(t, []string{"+update"}, gotArgs)
+}
+
+func TestWithoutSelfUpdateHasNoSoleArgs(t *testing.T) {
+	prog := newProgram(t, &cobralib.Command{})
+	require.Empty(t, prog.Generator().SoleArgs)
 }
 
 func TestWithoutStandardFlags(t *testing.T) {

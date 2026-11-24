@@ -108,6 +108,9 @@ func New(app *conductor.Runtime, cli any, opts ...Option) (*Program, error) {
 		complete.Spec{ShortFlag: "h", Terse: app.App.HelpShortDesc()},
 		complete.Spec{LongFlag: "help", Terse: app.App.HelpLongDesc()},
 	)
+	if selfUpdateEnabled(cli) {
+		gen.SoleArgs = append(gen.SoleArgs, update.SoleArg)
+	}
 	for _, fn := range cfg.generator {
 		fn(gen)
 	}
@@ -154,15 +157,8 @@ func (p *Program) Run(args []string) int {
 		return code
 	}
 
-	// Self-update runs before parsing, like completion, so it works even in
-	// grammars whose validation demands arguments or a subcommand.
-	if _, ok := p.cli.(conductor.SelfUpdater); ok {
-		if requested, err := update.Requested(args); requested {
-			if err == nil {
-				err = update.Run(context.Background(), p.Runtime, update.Options{})
-			}
-			return conductor.ExitCode(err, p.cfg.exitCode)
-		}
+	if handled, code := p.selfUpdate(args); handled {
+		return code
 	}
 
 	kctx, err := p.Parser.Parse(args)
@@ -195,15 +191,41 @@ func (p *Program) Run(args []string) int {
 }
 
 // Parse is the granular path for tools that dispatch themselves: it handles
-// completion preflight (the bool result reports a completion action ran and
-// the caller should exit with the int code) and parses args, leaving flag
-// application, notify and dispatch to the caller.
+// completion preflight and the +update self-update (the bool result reports
+// one of them ran and the caller should exit with the int code) and parses
+// args, leaving flag application, notify and dispatch to the caller.
 func (p *Program) Parse(args []string) (*konglib.Context, bool, int, error) {
 	if handled, code := p.completion(); handled {
 		return nil, true, code, nil
 	}
+	if handled, code := p.selfUpdate(args); handled {
+		return nil, true, code, nil
+	}
 	kctx, err := p.Parser.Parse(args)
 	return kctx, false, 0, err
+}
+
+// selfUpdate performs the self-update when the grammar opted into +update
+// and args request it. It runs before parsing, like completion, so it works
+// even in grammars whose validation demands arguments or a subcommand.
+func (p *Program) selfUpdate(args []string) (bool, int) {
+	if !selfUpdateEnabled(p.cli) {
+		return false, 0
+	}
+	requested, err := update.Requested(args)
+	if !requested {
+		return false, 0
+	}
+	if err == nil {
+		err = update.Run(context.Background(), p.Runtime, update.Options{})
+	}
+	return true, conductor.ExitCode(err, p.cfg.exitCode)
+}
+
+// selfUpdateEnabled reports whether the grammar opted into +update.
+func selfUpdateEnabled(cli any) bool {
+	su, ok := cli.(conductor.SelfUpdater)
+	return ok && su.SelfUpdateEnabled()
 }
 
 // completion executes a pre-parse completion action when one was requested.

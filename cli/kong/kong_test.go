@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	konglib "github.com/alecthomas/kong"
+	"github.com/gechr/clib/complete"
 	"github.com/gechr/clog"
 	"github.com/gechr/conductor"
 	ckong "github.com/gechr/conductor/cli/kong"
@@ -91,16 +92,46 @@ func TestSelfUpdateFlag(t *testing.T) {
 		return 42
 	}))
 	// Nil App.Updater: the self-update path runs and fails with the
-	// requires-updater error, proving the flag short-circuits dispatch.
-	require.Equal(t, 42, prog.Run([]string{"--self-update"}))
+	// requires-updater error, proving +update short-circuits dispatch.
+	require.Equal(t, 42, prog.Run([]string{"+update"}))
 	require.EqualError(t, got, "update command requires a self-updating updater, got <nil>")
 
-	// The flag is mutually exclusive with every other argument.
-	require.Equal(t, 42, prog.Run([]string{"--self-update", "--verbose"}))
-	require.EqualError(t, got, "--self-update cannot be combined with other arguments")
+	// The argument is mutually exclusive with every other argument.
+	require.Equal(t, 42, prog.Run([]string{"+update", "--verbose"}))
+	require.EqualError(t, got, "+update cannot be combined with other arguments")
 }
 
-func TestSelfUpdateFlagHiddenFromHelp(t *testing.T) {
+func TestSelfUpdateFlagParse(t *testing.T) {
+	t.Cleanup(func() { clog.SetLevel(clog.LevelInfo) })
+	clog.SetLevel(clog.LevelFatal) // suppress the expected error log
+
+	var cli struct {
+		ckong.Flags
+		ckong.SelfUpdateFlag
+
+		Greet greetCmd `help:"Greet" cmd:"" default:"1"`
+	}
+	prog := newProgram(t, &cli, ckong.WithExitCode(func(error) int { return 42 }))
+	kctx, handled, code, err := prog.Parse([]string{"+update"})
+	require.NoError(t, err)
+	require.Nil(t, kctx)
+	require.True(t, handled)
+	require.Equal(t, 42, code)
+}
+
+func TestSelfUpdateFlagAfterTerminatorIsPositional(t *testing.T) {
+	var cli struct {
+		ckong.Flags
+		ckong.SelfUpdateFlag
+
+		Args []string `arg:"" optional:""`
+	}
+	prog := newProgram(t, &cli, ckong.WithNoDefaultCommand())
+	require.Equal(t, 0, prog.Run([]string{"--", "+update"}))
+	require.Equal(t, []string{"+update"}, cli.Args)
+}
+
+func TestSelfUpdateFlagCompletion(t *testing.T) {
 	var cli struct {
 		ckong.Flags
 		ckong.SelfUpdateFlag
@@ -108,12 +139,18 @@ func TestSelfUpdateFlagHiddenFromHelp(t *testing.T) {
 		Greet greetCmd `help:"Greet" cmd:""`
 	}
 	prog := newProgram(t, &cli)
-	node := prog.Parser.Model.Node
-	for _, f := range node.Flags {
-		if f.Name == "self-update" {
-			require.True(t, f.Hidden, "--self-update must be hidden")
-		}
+	require.Equal(t,
+		[]complete.ValueDesc{{Value: "+update", Desc: "Update to the latest version"}},
+		prog.Gen.SoleArgs,
+	)
+	for _, f := range prog.Parser.Model.Flags {
+		require.NotEqual(t, "self-update", f.Name, "+update must not register a flag")
 	}
+
+	var plain struct {
+		ckong.Flags
+	}
+	require.Empty(t, newProgram(t, &plain).Gen.SoleArgs)
 }
 
 func TestUpdateCmdRequiresSupportedUpdater(t *testing.T) {

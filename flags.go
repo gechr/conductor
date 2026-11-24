@@ -38,9 +38,9 @@ type FlagSource interface {
 }
 
 // SelfUpdater is implemented by CLI grammars that opt into the hidden
-// --self-update flag, usually by embedding an adapter's SelfUpdateFlag.
+// +update argument, usually by embedding an adapter's SelfUpdateFlag.
 type SelfUpdater interface {
-	SelfUpdateRequested() bool
+	SelfUpdateEnabled() bool
 }
 
 // ApplyFlags is the post-parse phase: it maps the standard flags onto clog.

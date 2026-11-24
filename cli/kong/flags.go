@@ -26,13 +26,12 @@ func (f Flags) ConductorFlags() conductor.Flags {
 	return conductor.Flags{Verbosity: f.Verbose, Quiet: f.Quiet, Color: f.Color}
 }
 
-// SelfUpdateFlag is an embeddable hidden --self-update flag for flag-only
-// CLIs that have no subcommands to hang an update command off. When set,
-// [Program.Run] performs the self-update via App.Updater instead of
-// dispatching, and exits.
-type SelfUpdateFlag struct {
-	SelfUpdate bool `name:"self-update" help:"Update to the latest version" hidden:"" clib:"complete-hidden"`
-}
+// SelfUpdateFlag opts a flag-only CLI, which has no subcommands to hang an
+// update command off, into the hidden +update argument. Embedding it adds
+// nothing to the grammar: [Program.Run] spots +update before parsing,
+// performs the self-update via App.Updater instead of dispatching, and exits.
+// Shell completion offers +update as the first argument.
+type SelfUpdateFlag struct{}
 
-// SelfUpdateRequested reports whether the self-update flag was set.
-func (f SelfUpdateFlag) SelfUpdateRequested() bool { return f.SelfUpdate }
+// SelfUpdateEnabled implements [conductor.SelfUpdater].
+func (SelfUpdateFlag) SelfUpdateEnabled() bool { return true }

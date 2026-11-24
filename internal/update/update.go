@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/gechr/clib/complete"
 	"github.com/gechr/clive/updater"
 	"github.com/gechr/clive/updater/brew"
 	"github.com/gechr/conductor"
@@ -23,25 +24,34 @@ type Options struct {
 	NoUninstall bool
 }
 
-// Requested reports whether args contains the hidden --self-update flag,
-// scanning only up to a "--" terminator. Like completion preflight, the scan
-// runs before parsing so self-update works even in grammars whose validation
-// would otherwise demand arguments or a subcommand. The flag is mutually
-// exclusive with everything else: when it appears alongside any other
-// argument, the first result is still true and the error explains the
-// conflict.
+// Arg is the hidden self-update argument for CLIs without subcommands. The
+// "+" prefix keeps it clear of both flags and positional arguments.
+const Arg = "+update"
+
+// SoleArg describes [Arg] for shell completion, which offers it only as the
+// first argument because it must stand alone.
+var SoleArg = complete.ValueDesc{Value: Arg, Desc: "Update to the latest version"}
+
+// Requested reports whether args contains the hidden [Arg], scanning only up
+// to a "--" terminator, so `app -- +update` passes it through as an ordinary
+// argument. Like completion preflight, the scan runs before parsing so
+// self-update works even in grammars whose validation would otherwise demand
+// arguments or a subcommand, and whose parsers would reject the "+" word. The
+// argument is mutually exclusive with everything else: when it appears
+// alongside any other argument, the first result is still true and the error
+// explains the conflict.
 func Requested(args []string) (bool, error) {
 	requested := false
 	for _, arg := range args {
 		if arg == "--" {
 			break
 		}
-		if arg == "--self-update" {
+		if arg == Arg {
 			requested = true
 		}
 	}
 	if requested && len(args) > 1 {
-		return true, errors.New("--self-update cannot be combined with other arguments")
+		return true, errors.New(Arg + " cannot be combined with other arguments")
 	}
 	return requested, nil
 }

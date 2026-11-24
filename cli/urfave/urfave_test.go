@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/gechr/clib/complete"
 	"github.com/gechr/clog"
 	"github.com/gechr/conductor"
 	curfave "github.com/gechr/conductor/cli/urfave"
@@ -142,16 +143,40 @@ func TestWithSelfUpdate(t *testing.T) {
 		got = err
 		return 42
 	}))
-	require.Equal(t, 42, prog.Run(context.Background(), []string{"demo", "--self-update"}))
+	require.Equal(t, 42, prog.Run(context.Background(), []string{"demo", "+update"}))
 	require.EqualError(t, got, "update command requires a self-updating updater, got <nil>")
 
-	// The flag is mutually exclusive with every other argument.
+	// The argument is mutually exclusive with every other argument.
 	require.Equal(
 		t,
 		42,
-		prog.Run(context.Background(), []string{"demo", "--self-update", "--verbose"}),
+		prog.Run(context.Background(), []string{"demo", "+update", "--verbose"}),
 	)
-	require.EqualError(t, got, "--self-update cannot be combined with other arguments")
+	require.EqualError(t, got, "+update cannot be combined with other arguments")
+
+	require.Equal(t,
+		[]complete.ValueDesc{{Value: "+update", Desc: "Update to the latest version"}},
+		prog.Generator().SoleArgs,
+	)
+	for _, flag := range root.Flags {
+		assert.NotContains(t, flag.Names(), "self-update")
+	}
+}
+
+func TestWithSelfUpdateAfterTerminatorIsPositional(t *testing.T) {
+	var gotArgs []string
+	root := &clilib.Command{Action: func(_ context.Context, cmd *clilib.Command) error {
+		gotArgs = cmd.Args().Slice()
+		return nil
+	}}
+	prog := newProgram(t, root, curfave.WithSelfUpdate())
+	require.Equal(t, 0, prog.Run(context.Background(), []string{"demo", "--", "+update"}))
+	require.Equal(t, []string{"+update"}, gotArgs)
+}
+
+func TestWithoutSelfUpdateHasNoSoleArgs(t *testing.T) {
+	prog := newProgram(t, &clilib.Command{})
+	require.Empty(t, prog.Generator().SoleArgs)
 }
 
 func TestUpdateCommandRequiresSupportedUpdater(t *testing.T) {
